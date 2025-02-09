@@ -1,4 +1,12 @@
-import { IsString, IsUUID, IsBoolean, IsOptional } from 'class-validator';
+/** @format */
+
+import {
+  IsString,
+  IsNotEmpty,
+  IsBoolean,
+  IsUUID,
+  IsOptional,
+} from 'class-validator';
 
 export class UpdateEmailDto {
   @IsUUID()
@@ -6,11 +14,12 @@ export class UpdateEmailDto {
   id?: string;
 
   @IsString()
-  tipo: string;
+  type: string;
 
   @IsString()
-  endereco: string;
+  @IsNotEmpty()
+  address: string;
 
   @IsBoolean()
-  favorito: boolean;
+  favorite: boolean;
 }

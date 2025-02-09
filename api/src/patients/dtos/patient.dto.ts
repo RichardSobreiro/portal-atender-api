@@ -1,6 +1,5 @@
 /** @format */
 
-import { Patient } from '../entities/patient.entity';
 import { Expose, Type } from 'class-transformer';
 import { PhoneDto } from './phone.dto';
 import { EmailDto } from './email.dto';
@@ -12,16 +11,16 @@ export class PatientDto {
   id: string;
 
   @Expose()
-  nome: string;
+  name: string;
 
   @Expose()
-  dataNascimento: string;
+  birthDate: string;
 
   @Expose()
-  idade: number;
+  age: number;
 
   @Expose()
-  rg: string;
+  idCard: string;
 
   @Expose()
   cpfCnpj: string;
@@ -30,28 +29,28 @@ export class PatientDto {
   instagram: string;
 
   @Expose()
-  profissao: string;
+  profession: string;
 
   @Expose()
-  localTrabalho: string;
+  workplace: string;
 
   @Expose()
-  genero: string;
+  gender: string;
 
   @Expose()
-  estadoCivil: string;
+  maritalStatus: string;
 
   @Expose()
-  indicacao: string;
+  referral: string;
 
   @Expose()
-  observacoes: string;
+  observations: string;
 
   @Expose()
-  emergencyName: string;
+  emergencyContactName: string;
 
   @Expose()
-  emergencyPhone: string;
+  emergencyContactPhone: string;
 
   @Expose()
   healthPlan: string;
@@ -61,7 +60,7 @@ export class PatientDto {
 
   @Expose()
   @Type(() => PhoneDto)
-  telefones: PhoneDto[];
+  phones: PhoneDto[];
 
   @Expose()
   @Type(() => EmailDto)
@@ -69,13 +68,13 @@ export class PatientDto {
 
   @Expose()
   @Type(() => AddressDto)
-  enderecos: AddressDto[];
+  addresses: AddressDto[];
 
   @Expose()
   @Type(() => ResponsibleDto)
-  responsaveis: ResponsibleDto[];
+  responsibles: ResponsibleDto[];
 
-  constructor(patient: Patient) {
+  constructor(patient: PatientDto) {
     Object.assign(this, patient);
   }
 }

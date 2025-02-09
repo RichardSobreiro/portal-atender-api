@@ -1,22 +1,25 @@
 /** @format */
 
-import { Expose } from 'class-transformer';
-import { Email } from '../entities/email.entity';
+import {
+  IsString,
+  IsNotEmpty,
+  IsBoolean,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
 
 export class EmailDto {
-  @Expose()
-  id: string;
+  @IsUUID()
+  @IsOptional()
+  id?: string;
 
-  @Expose()
-  tipo: string;
+  @IsString()
+  type: string;
 
-  @Expose()
-  endereco: string;
+  @IsString()
+  @IsNotEmpty()
+  address: string;
 
-  @Expose()
-  favorito: boolean;
-
-  constructor(email: Email) {
-    Object.assign(this, email);
-  }
+  @IsBoolean()
+  favorite: boolean;
 }

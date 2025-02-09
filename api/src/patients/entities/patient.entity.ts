@@ -21,17 +21,17 @@ export class Patient {
 
   @Column({ type: 'varchar', length: 255 })
   @Index() // Indexed for searching patients by name
-  nome: string;
+  name: string;
 
   @Column({ type: 'date', nullable: true })
-  dataNascimento: Date;
+  birthDate: Date;
 
   @Column({ type: 'int', nullable: true })
-  idade: number;
+  age: number;
 
   @Column({ type: 'varchar', length: 20, unique: true, nullable: true })
   @Index() // Indexed for fast lookup by RG
-  rg: string;
+  idCard: string;
 
   @Column({ type: 'varchar', length: 20, unique: true, nullable: false })
   @Index() // Indexed for fast lookup by CPF/CNPJ
@@ -41,48 +41,48 @@ export class Patient {
   instagram: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  profissao: string;
+  profession: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  localTrabalho: string;
+  workplace: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
-  genero: string;
+  gender: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
-  estadoCivil: string;
+  maritalStatus: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  indicacao: string;
+  referral: string;
 
   @Column({ type: 'text', nullable: true })
-  observacoes: string;
+  observations: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  emergencyName: string;
+  emergencyContactName: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
-  emergencyPhone: string;
+  emergencyContactPhone: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  healthPlan: string;
+  healthInsurance: string;
 
   @Column({ type: 'varchar', length: 5, nullable: true })
   bloodType: string;
 
   @OneToMany(() => Phone, (phone) => phone.patient, { cascade: true })
-  telefones: Phone[];
+  phones: Phone[];
 
   @OneToMany(() => Email, (email) => email.patient, { cascade: true })
   emails: Email[];
 
   @OneToMany(() => Address, (address) => address.patient, { cascade: true })
-  enderecos: Address[];
+  addresses: Address[];
 
   @OneToMany(() => Responsible, (responsible) => responsible.patient, {
     cascade: true,
   })
-  responsaveis: Responsible[];
+  responsibles: Responsible[];
 
   @CreateDateColumn()
   createdAt: Date;

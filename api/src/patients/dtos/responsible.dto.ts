@@ -1,34 +1,32 @@
 /** @format */
 
-import { Expose } from 'class-transformer';
-import { Responsible } from '../entities/responsible.entity';
+import { IsString, IsOptional, Length, IsUUID } from 'class-validator';
 
 export class ResponsibleDto {
-  @Expose()
-  id: string;
+  @IsUUID()
+  @IsOptional()
+  id?: string;
 
-  @Expose()
+  @IsString()
   name: string;
 
-  @Expose()
+  @IsString()
   relation: string;
 
-  @Expose()
+  @IsString()
   phone: string;
 
-  @Expose()
+  @IsString()
   email: string;
 
-  @Expose()
+  @IsString()
   profession: string;
 
-  @Expose()
-  rg: string;
+  @IsString()
+  @IsOptional()
+  idCard?: string;
 
-  @Expose()
+  @IsString()
+  @Length(11, 14)
   cpfCnpj: string;
-
-  constructor(responsible: Responsible) {
-    Object.assign(this, responsible);
-  }
 }

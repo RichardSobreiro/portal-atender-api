@@ -22,7 +22,7 @@ export class UpdateResponsibleDto {
 
   @IsString()
   @IsOptional()
-  rg?: string;
+  idCard?: string;
 
   @IsString()
   cpfCnpj: string;

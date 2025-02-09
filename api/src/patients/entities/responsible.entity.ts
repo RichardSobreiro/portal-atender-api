@@ -16,7 +16,7 @@ export class Responsible {
   name: string;
 
   @Column({ type: 'varchar', length: 100 })
-  relation: string;
+  relationship: string;
 
   @Column({ type: 'varchar', length: 20 })
   phone: string;
@@ -28,13 +28,13 @@ export class Responsible {
   profession: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
-  rg: string;
+  idCard: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
   @Index() // Indexed for fast lookup by CPF/CNPJ
   cpfCnpj: string;
 
-  @ManyToOne(() => Patient, (patient) => patient.responsaveis, {
+  @ManyToOne(() => Patient, (patient) => patient.responsibles, {
     onDelete: 'CASCADE',
   })
   patient: Patient;

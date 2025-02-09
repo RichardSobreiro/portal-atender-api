@@ -6,11 +6,11 @@ export class UpdatePhoneDto {
   id?: string;
 
   @IsString()
-  tipo: string;
+  type: string;
 
   @IsString()
-  numero: string;
+  number: string;
 
   @IsBoolean()
-  favorito: boolean;
+  favority: boolean;
 }

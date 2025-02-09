@@ -1,4 +1,12 @@
-import { IsString, IsUUID, IsBoolean, IsOptional } from 'class-validator';
+/** @format */
+
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  Length,
+  IsUUID,
+} from 'class-validator';
 
 export class UpdateAddressDto {
   @IsUUID()
@@ -6,33 +14,34 @@ export class UpdateAddressDto {
   id?: string;
 
   @IsString()
-  tipo: string;
+  type: string;
 
   @IsString()
-  cep: string;
+  @Length(8, 8)
+  postalCode: string;
 
   @IsString()
-  rua: string;
+  street: string;
 
   @IsString()
-  numero: string;
+  number: string;
 
   @IsString()
   @IsOptional()
-  complemento?: string;
+  complement?: string;
 
   @IsString()
-  bairro: string;
+  neighborhood: string;
 
   @IsString()
-  cidade: string;
+  city: string;
 
   @IsString()
-  estado: string;
+  state: string;
 
   @IsString()
-  pais: string;
+  country: string;
 
-  @IsBoolean()
-  favorito: boolean;
+  @IsNotEmpty()
+  favorite: boolean;
 }

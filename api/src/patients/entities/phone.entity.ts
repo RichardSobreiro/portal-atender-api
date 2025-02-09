@@ -13,16 +13,16 @@ export class Phone {
   id: string;
 
   @Column({ type: 'varchar', length: 20 })
-  tipo: string;
+  type: string;
 
   @Column({ type: 'varchar', length: 20 })
   @Index() // Indexed for fast lookup by phone number
-  numero: string;
+  number: string;
 
   @Column({ type: 'boolean', default: false })
-  favorito: boolean;
+  favorite: boolean;
 
-  @ManyToOne(() => Patient, (patient) => patient.telefones, {
+  @ManyToOne(() => Patient, (patient) => patient.phones, {
     onDelete: 'CASCADE',
   })
   patient: Patient;

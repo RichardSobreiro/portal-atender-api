@@ -1,43 +1,47 @@
 /** @format */
 
-import { Expose } from 'class-transformer';
-import { Address } from '../entities/address.entity';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  Length,
+  IsUUID,
+} from 'class-validator';
 
 export class AddressDto {
-  @Expose()
-  id: string;
+  @IsUUID()
+  @IsOptional()
+  id?: string;
 
-  @Expose()
-  tipo: string;
+  @IsString()
+  type: string;
 
-  @Expose()
-  cep: string;
+  @IsString()
+  @Length(8, 8)
+  postalCode: string;
 
-  @Expose()
-  rua: string;
+  @IsString()
+  street: string;
 
-  @Expose()
-  numero: string;
+  @IsString()
+  number: string;
 
-  @Expose()
-  complemento: string;
+  @IsString()
+  @IsOptional()
+  complement?: string;
 
-  @Expose()
-  bairro: string;
+  @IsString()
+  neighborhood: string;
 
-  @Expose()
-  cidade: string;
+  @IsString()
+  city: string;
 
-  @Expose()
-  estado: string;
+  @IsString()
+  state: string;
 
-  @Expose()
-  pais: string;
+  @IsString()
+  country: string;
 
-  @Expose()
-  favorito: boolean;
-
-  constructor(address: Address) {
-    Object.assign(this, address);
-  }
+  @IsNotEmpty()
+  favorite: boolean;
 }

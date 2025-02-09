@@ -13,37 +13,37 @@ export class Address {
   id: string;
 
   @Column({ type: 'varchar', length: 20 })
-  tipo: string;
+  type: string;
 
   @Column({ type: 'varchar', length: 10 })
   @Index() // Indexed for fast lookup by ZIP code
-  cep: string;
+  postalCode: string;
 
   @Column({ type: 'varchar', length: 255 })
-  rua: string;
+  street: string;
 
   @Column({ type: 'varchar', length: 10 })
-  numero: string;
+  houseNumber: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  complemento: string;
+  complement: string;
 
   @Column({ type: 'varchar', length: 255 })
-  bairro: string;
+  neighborhood: string;
 
   @Column({ type: 'varchar', length: 255 })
-  cidade: string;
+  cage: string;
 
   @Column({ type: 'varchar', length: 50 })
-  estado: string;
+  state: string;
 
   @Column({ type: 'varchar', length: 50 })
-  pais: string;
+  country: string;
 
   @Column({ type: 'boolean', default: false })
-  favorito: boolean;
+  favorite: boolean;
 
-  @ManyToOne(() => Patient, (patient) => patient.enderecos, {
+  @ManyToOne(() => Patient, (patient) => patient.addresses, {
     onDelete: 'CASCADE',
   })
   patient: Patient;

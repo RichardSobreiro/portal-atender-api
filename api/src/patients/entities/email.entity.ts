@@ -13,14 +13,14 @@ export class Email {
   id: string;
 
   @Column({ type: 'varchar', length: 50 })
-  tipo: string;
+  type: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
   @Index() // Indexed for fast lookup by email
-  endereco: string;
+  address: string;
 
   @Column({ type: 'boolean', default: false })
-  favorito: boolean;
+  favorite: boolean;
 
   @ManyToOne(() => Patient, (patient) => patient.emails, {
     onDelete: 'CASCADE',

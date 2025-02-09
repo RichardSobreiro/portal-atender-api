@@ -10,175 +10,209 @@ import {
   Length,
   ValidateNested,
   IsArray,
+  IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class PhoneDto {
-  @IsString()
-  tipo: string;
+  @IsUUID()
+  @IsOptional()
+  id?: string;
 
-  @IsString()
-  @Length(10, 11)
-  numero: string;
+  @IsString({ message: 'O type do telefone deve ser uma string.' })
+  type: string;
 
-  @IsBoolean()
-  favorito: boolean;
+  @IsString({ message: 'O número do telefone deve ser uma string.' })
+  @Length(10, 11, {
+    message: 'O número do telefone deve ter entre 10 e 11 dígitos.',
+  })
+  number: string;
+
+  @IsBoolean({
+    message: 'O campo favorito deve ser preenchido.',
+  })
+  favorite: boolean;
 }
 
 class EmailDto {
-  @IsString()
-  tipo: string;
+  @IsUUID()
+  @IsOptional()
+  id?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  endereco: string;
+  @IsString({ message: 'O type do e-mail deve ser uma string.' })
+  type: string;
 
-  @IsBoolean()
-  favorito: boolean;
+  @IsString({ message: 'O endereço de e-mail deve ser uma string.' })
+  @IsNotEmpty({ message: 'O endereço de e-mail é obrigatório.' })
+  address: string;
+
+  @IsBoolean({
+    message: 'O campo favorito deve ser preenchido.',
+  })
+  favorite: boolean;
 }
 
 class AddressDto {
-  @IsString()
-  tipo: string;
-
-  @IsString()
-  @Length(8, 8)
-  cep: string;
-
-  @IsString()
-  rua: string;
-
-  @IsString()
-  numero: string;
-
-  @IsString()
+  @IsUUID()
   @IsOptional()
-  complemento?: string;
+  id?: string;
 
-  @IsString()
-  bairro: string;
+  @IsString({ message: 'O tipo do endereço deve ser uma string.' })
+  type: string;
 
-  @IsString()
-  cidade: string;
+  @IsString({ message: 'O CEP deve ser uma string.' })
+  @Length(8, 8, { message: 'O CEP deve ter exatamente 8 dígitos.' })
+  postalCode: string;
 
-  @IsString()
-  estado: string;
+  @IsString({ message: 'A rua deve ser uma string.' })
+  street: string;
 
-  @IsString()
-  pais: string;
+  @IsString({ message: 'O número deve ser uma string.' })
+  number: string;
 
-  @IsBoolean()
-  favorito: boolean;
+  @IsString({ message: 'O complemento deve ser uma string.' })
+  @IsOptional()
+  complement?: string;
+
+  @IsString({ message: 'O bairro deve ser uma string.' })
+  neighborhood: string;
+
+  @IsString({ message: 'A cidade deve ser uma string.' })
+  city: string;
+
+  @IsString({ message: 'O estado deve ser uma string.' })
+  state: string;
+
+  @IsString({ message: 'O país deve ser uma string.' })
+  country: string;
+
+  @IsBoolean({
+    message: 'O campo favorito deve ser preenchido.',
+  })
+  favorite: boolean;
 }
 
 class ResponsibleDto {
-  @IsString()
+  @IsUUID()
+  @IsOptional()
+  id?: string;
+
+  @IsString({ message: 'O nome do responsável deve ser uma string.' })
   name: string;
 
-  @IsString()
+  @IsString({ message: 'A relação com o paciente deve ser uma string.' })
   relation: string;
 
-  @IsString()
+  @IsString({ message: 'O telefone do responsável deve ser uma string.' })
   phone: string;
 
-  @IsString()
+  @IsString({ message: 'O e-mail do responsável deve ser uma string.' })
   email: string;
 
-  @IsString()
+  @IsString({ message: 'A profissão do responsável deve ser uma string.' })
   profession: string;
 
-  @IsString()
+  @IsString({ message: 'O RG deve ser uma string.' })
   @IsOptional()
-  rg?: string;
+  idCard?: string;
 
-  @IsString()
-  @Length(11, 14)
+  @IsString({ message: 'O CPF/CNPJ deve ser uma string.' })
+  @Length(11, 14, { message: 'O CPF deve ter 11 dígitos e o CNPJ 14.' })
   cpfCnpj: string;
 }
 
 export class CreatePatientDto {
-  @IsString()
-  @IsNotEmpty()
-  nome: string;
-
-  @IsDateString()
+  @IsUUID()
   @IsOptional()
-  dataNascimento?: Date;
+  id?: string;
 
-  @IsNumber()
+  @IsString({ message: 'O nome deve ser uma string.' })
+  @IsNotEmpty({ message: 'O nome é obrigatório.' })
+  name: string;
+
+  @IsDateString(
+    {},
+    { message: 'A data de nascimento deve estar no formato AAAA-MM-DD.' },
+  )
   @IsOptional()
-  idade?: number;
+  birthDate?: Date;
 
-  @IsString()
+  @IsNumber({}, { message: 'A idade deve ser um número.' })
   @IsOptional()
-  rg?: string;
+  age?: number;
 
-  @IsString()
-  @IsNotEmpty()
-  @Length(11, 14)
+  @IsString({ message: 'O RG deve ser uma string.' })
+  @IsOptional()
+  idCard?: string;
+
+  @IsString({ message: 'O CPF/CNPJ deve ser uma string.' })
+  @IsNotEmpty({ message: 'O CPF/CNPJ é obrigatório.' })
+  @Length(11, 14, { message: 'O CPF deve ter 11 dígitos e o CNPJ 14.' })
   cpfCnpj: string;
 
-  @IsString()
+  @IsString({ message: 'O Instagram deve ser uma string.' })
   @IsOptional()
   instagram?: string;
 
-  @IsString()
+  @IsString({ message: 'A profissão deve ser uma string.' })
   @IsOptional()
-  profissao?: string;
+  profession?: string;
 
-  @IsString()
+  @IsString({ message: 'O local de trabalho deve ser uma string.' })
   @IsOptional()
-  localTrabalho?: string;
+  workplace?: string;
 
-  @IsString()
+  @IsString({ message: 'O gênero deve ser uma string.' })
   @IsOptional()
-  genero?: string;
+  gender?: string;
 
-  @IsString()
+  @IsString({ message: 'O estado civil deve ser uma string.' })
   @IsOptional()
-  estadoCivil?: string;
+  maritalStatus?: string;
 
-  @IsString()
+  @IsString({ message: 'A indicação deve ser uma string.' })
   @IsOptional()
-  indicacao?: string;
+  referral?: string;
 
-  @IsString()
+  @IsString({ message: 'As observações devem ser uma string.' })
   @IsOptional()
-  observacoes?: string;
+  observations?: string;
 
-  @IsString()
+  @IsString({ message: 'O nome do contato de emergência deve ser uma string.' })
   @IsOptional()
-  emergencyName?: string;
+  emergencyContactName?: string;
 
-  @IsString()
+  @IsString({
+    message: 'O telefone do contato de emergência deve ser uma string.',
+  })
   @IsOptional()
-  emergencyPhone?: string;
+  emergencyContactPhone?: string;
 
-  @IsString()
+  @IsString({ message: 'O plano de saúde deve ser uma string.' })
   @IsOptional()
-  healthPlan?: string;
+  healthInsurance?: string;
 
-  @IsString()
+  @IsString({ message: 'O type sanguíneo deve ser uma string.' })
   @IsOptional()
   bloodType?: string;
 
-  @IsArray()
+  @IsArray({ message: 'Os telefones devem ser um array.' })
   @ValidateNested({ each: true })
   @Type(() => PhoneDto)
-  telefones: PhoneDto[];
+  phones: PhoneDto[];
 
-  @IsArray()
+  @IsArray({ message: 'Os e-mails devem ser um array.' })
   @ValidateNested({ each: true })
   @Type(() => EmailDto)
   emails: EmailDto[];
 
-  @IsArray()
+  @IsArray({ message: 'Os endereços devem ser um array.' })
   @ValidateNested({ each: true })
   @Type(() => AddressDto)
-  enderecos: AddressDto[];
+  addresses: AddressDto[];
 
-  @IsArray()
+  @IsArray({ message: 'Os responsáveis devem ser um array.' })
   @ValidateNested({ each: true })
   @Type(() => ResponsibleDto)
-  responsaveis: ResponsibleDto[];
+  responsibles: ResponsibleDto[];
 }

@@ -1,22 +1,25 @@
 /** @format */
 
-import { Expose } from 'class-transformer';
-import { Phone } from '../entities/phone.entity';
+import {
+  IsString,
+  IsBoolean,
+  Length,
+  IsUUID,
+  IsOptional,
+} from 'class-validator';
 
 export class PhoneDto {
-  @Expose()
-  id: string;
+  @IsUUID()
+  @IsOptional()
+  id?: string;
 
-  @Expose()
-  tipo: string;
+  @IsString()
+  type: string;
 
-  @Expose()
-  numero: string;
+  @IsString()
+  @Length(10, 11)
+  number: string;
 
-  @Expose()
-  favorito: boolean;
-
-  constructor(phone: Phone) {
-    Object.assign(this, phone);
-  }
+  @IsBoolean()
+  favorite: boolean;
 }

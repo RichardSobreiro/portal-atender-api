@@ -6,27 +6,15 @@ import { Type } from 'class-transformer';
 export class PatientQueryDto {
   @IsOptional()
   @IsString()
-  nome?: string;
+  searchTerm?: string; // Single field for name, CPF/CNPJ, phone, and email
 
   @IsOptional()
   @IsString()
-  cpfCnpj?: string;
+  city?: string;
 
   @IsOptional()
   @IsString()
-  telefone?: string;
-
-  @IsOptional()
-  @IsString()
-  email?: string;
-
-  @IsOptional()
-  @IsString()
-  cidade?: string;
-
-  @IsOptional()
-  @IsString()
-  estado?: string;
+  state?: string;
 
   @IsOptional()
   @Type(() => Number)
