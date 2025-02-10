@@ -111,9 +111,11 @@ export class PatientService {
       throw new NotFoundException(`Paciente com ID ${id} não encontrado`);
     }
 
-    return plainToInstance(PatientDto, patient, {
-      excludeExtraneousValues: true,
-    });
+    const transformed = new PatientDto(patient);
+    transformed.phones = patient.phones || [];
+    transformed.emails = patient.emails || [];
+
+    return transformed;
   }
 
   async update(

@@ -23,7 +23,7 @@ export class Address {
   street: string;
 
   @Column({ type: 'varchar', length: 10 })
-  houseNumber: string;
+  number: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   complement: string;
@@ -32,7 +32,7 @@ export class Address {
   neighborhood: string;
 
   @Column({ type: 'varchar', length: 255 })
-  cage: string;
+  city: string;
 
   @Column({ type: 'varchar', length: 50 })
   state: string;

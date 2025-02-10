@@ -22,4 +22,8 @@ export class EmailDto {
 
   @IsBoolean()
   favorite: boolean;
+
+  constructor(email: Partial<EmailDto>) {
+    Object.assign(this, email);
+  }
 }

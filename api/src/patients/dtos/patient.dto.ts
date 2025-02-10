@@ -14,7 +14,7 @@ export class PatientDto {
   name: string;
 
   @Expose()
-  birthDate: string;
+  birthDate: Date;
 
   @Expose()
   age: number;
@@ -53,18 +53,18 @@ export class PatientDto {
   emergencyContactPhone: string;
 
   @Expose()
-  healthPlan: string;
+  healthInsurance: string;
 
   @Expose()
   bloodType: string;
 
   @Expose()
   @Type(() => PhoneDto)
-  phones: PhoneDto[];
+  phones: PhoneDto[] = [];
 
   @Expose()
   @Type(() => EmailDto)
-  emails: EmailDto[];
+  emails: EmailDto[] = [];
 
   @Expose()
   @Type(() => AddressDto)

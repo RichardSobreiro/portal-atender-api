@@ -22,4 +22,8 @@ export class PhoneDto {
 
   @IsBoolean()
   favorite: boolean;
+
+  constructor(phone: Partial<PhoneDto>) {
+    Object.assign(this, phone);
+  }
 }

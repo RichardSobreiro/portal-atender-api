@@ -16,7 +16,7 @@ export class Responsible {
   name: string;
 
   @Column({ type: 'varchar', length: 100 })
-  relationship: string;
+  relation: string;
 
   @Column({ type: 'varchar', length: 20 })
   phone: string;

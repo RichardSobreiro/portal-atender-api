@@ -15,8 +15,8 @@ export class Email {
   @Column({ type: 'varchar', length: 50 })
   type: string;
 
-  @Column({ type: 'varchar', length: 255, unique: true })
-  @Index() // Indexed for fast lookup by email
+  @Column({ type: 'varchar', length: 255, unique: false })
+  @Index()
   address: string;
 
   @Column({ type: 'boolean', default: false })
