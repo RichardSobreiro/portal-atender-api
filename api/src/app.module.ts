@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/ormconfig';
 import { AuthModule } from './auth/auth.module';
 import { PatientModule } from './patients/patient.module';
+import { PatientRecordModule } from './patients/patient-record.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PatientModule } from './patients/patient.module';
     TypeOrmModule.forRoot(typeOrmConfig),
     AuthModule,
     PatientModule,
+    PatientRecordModule,
   ],
   controllers: [AppController],
   providers: [AppService],

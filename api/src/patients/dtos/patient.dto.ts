@@ -59,6 +59,12 @@ export class PatientDto {
   bloodType: string;
 
   @Expose()
+  createdAt: Date;
+
+  @Expose()
+  updatedAt: Date;
+
+  @Expose()
   @Type(() => PhoneDto)
   phones: PhoneDto[] = [];
 

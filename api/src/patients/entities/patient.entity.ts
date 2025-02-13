@@ -13,6 +13,7 @@ import { Phone } from './phone.entity';
 import { Email } from './email.entity';
 import { Address } from './address.entity';
 import { Responsible } from './responsible.entity';
+import { PatientRecord } from './patient-record.entity';
 
 @Entity('patients')
 export class Patient {
@@ -83,6 +84,9 @@ export class Patient {
     cascade: true,
   })
   responsibles: Responsible[];
+
+  @OneToMany(() => PatientRecord, (record) => record.patient, { cascade: true })
+  records: PatientRecord[];
 
   @CreateDateColumn()
   createdAt: Date;
