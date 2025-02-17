@@ -14,6 +14,7 @@ import { Email } from './email.entity';
 import { Address } from './address.entity';
 import { Responsible } from './responsible.entity';
 import { PatientRecord } from './patient-record.entity';
+import { PatientImage } from './patient-image.entity';
 
 @Entity('patients')
 export class Patient {
@@ -87,6 +88,9 @@ export class Patient {
 
   @OneToMany(() => PatientRecord, (record) => record.patient, { cascade: true })
   records: PatientRecord[];
+
+  @OneToMany(() => PatientImage, (record) => record.patient, { cascade: true })
+  images: PatientImage[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -7,6 +7,7 @@ import { typeOrmConfig } from './config/ormconfig';
 import { AuthModule } from './auth/auth.module';
 import { PatientModule } from './patients/patient.module';
 import { PatientRecordModule } from './patients/patient-record.module';
+import { PatientImagesModule } from './patients/patient-images.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PatientRecordModule } from './patients/patient-record.module';
     AuthModule,
     PatientModule,
     PatientRecordModule,
+    PatientImagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

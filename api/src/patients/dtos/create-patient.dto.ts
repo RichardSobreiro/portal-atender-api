@@ -146,8 +146,8 @@ export class CreatePatientDto {
   idCard?: string;
 
   @IsString({ message: 'O CPF/CNPJ deve ser uma string.' })
-  @IsNotEmpty({ message: 'O CPF/CNPJ é obrigatório.' })
-  @Length(11, 14, { message: 'O CPF deve ter 11 dígitos e o CNPJ 14.' })
+  //@Length(11, 14, { message: 'O CPF deve ter 11 dígitos e o CNPJ 14.' })
+  @IsOptional()
   cpfCnpj: string;
 
   @IsString({ message: 'O Instagram deve ser uma string.' })
