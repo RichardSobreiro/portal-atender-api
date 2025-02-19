@@ -1,3 +1,5 @@
+/** @format */
+
 import {
   Injectable,
   UnauthorizedException,
@@ -5,7 +7,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
+import { Company } from './entities/company.entity';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 
@@ -14,6 +17,10 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Company)
+    private readonly companyRepository: Repository<Company>, // Inject Company Repository
+
     private readonly jwtService: JwtService,
   ) {}
 
@@ -34,15 +41,21 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<{ access_token: string; refresh_token: string }> {
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({
+      where: { email },
+      relations: ['company'], // Include company relation
+    });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Credenciais inválidas');
+      throw new UnauthorizedException('Usuário ou senha inválidos');
     }
 
-    const payload = { email, sub: user.id };
+    const companyId = user.company ? user.company.id : null; // Get companyId
+
+    const payload = { email, sub: user.id, companyId }; // Include companyId in payload
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1d' });
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' }); // 7 days
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+
     return { access_token: accessToken, refresh_token: refreshToken };
   }
 }
