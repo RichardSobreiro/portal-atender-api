@@ -1,64 +1,70 @@
 /** @format */
 
+import { Type } from 'class-transformer';
 import {
   IsString,
   IsUUID,
   IsOptional,
   IsInt,
   IsBoolean,
-  IsDecimal,
   Min,
   MaxLength,
+  IsNumber,
 } from 'class-validator';
 
 export class UpdateProcedureDto {
-  @IsString()
-  @IsOptional()
-  @MaxLength(255)
-  name?: string;
+  @IsString({ message: 'O nome do procedimento deve ser uma string válida.' })
+  @MaxLength(255, {
+    message: 'O nome do procedimento não pode exceder 255 caracteres.',
+  })
+  name: string;
 
-  @IsString()
-  @IsOptional()
-  @MaxLength(7)
-  color?: string;
+  @IsString({ message: 'A cor deve ser um valor hexadecimal válido.' })
+  @MaxLength(7, {
+    message: 'A cor deve estar no formato hexadecimal (ex: #FFFFFF).',
+  })
+  color: string;
 
-  @IsInt()
-  @Min(0)
-  @IsOptional()
-  duration?: number;
+  @IsInt({ message: 'A duração deve ser um número inteiro.' })
+  @Min(0, { message: 'A duração não pode ser negativa.' })
+  duration: number;
 
-  @IsDecimal()
-  @Min(0)
-  @IsOptional()
-  price?: number;
+  @Type(() => Number)
+  @IsNumber({}, { message: 'O preço deve ser um número decimal válido.' })
+  @Min(0, { message: 'O preço deve ser maior ou igual a 0.' })
+  price: number;
 
-  @IsDecimal()
-  @Min(0)
-  @IsOptional()
-  costEstimated?: number;
+  @Type(() => Number)
+  @IsNumber(
+    {},
+    { message: 'O custo estimado deve ser um número decimal válido.' },
+  )
+  @Min(0, { message: 'O custo estimado deve ser maior ou igual a 0.' })
+  costEstimated: number;
 
-  @IsString()
+  @IsString({ message: 'A descrição deve ser uma string válida.' })
   @IsOptional()
   description?: string;
 
-  @IsBoolean()
+  @IsBoolean({
+    message: 'O campo "ativo" deve ser um valor booleano (true ou false).',
+  })
   @IsOptional()
   active?: boolean;
 
-  @IsString()
-  @IsOptional()
-  @MaxLength(255)
-  category?: string;
+  @IsString({ message: 'A categoria deve ser uma string válida.' })
+  @MaxLength(255, { message: 'A categoria não pode exceder 255 caracteres.' })
+  category: string;
 
-  @IsString()
+  @IsString({ message: 'O protocolo deve ser uma string válida.' })
   @IsOptional()
   protocol?: string;
 
-  @IsString()
+  @IsString({ message: 'O termo de consentimento deve ser uma string válida.' })
   @IsOptional()
   consentForm?: string;
 
-  @IsUUID()
+  @IsUUID('4', { message: 'O ID da empresa deve ser um UUID válido.' })
   @IsOptional()
   companyId?: string;
 }

@@ -1,6 +1,6 @@
 /** @format */
 
-import { IsOptional, IsInt, Min, IsUUID } from 'class-validator';
+import { IsOptional, IsInt, Min, IsUUID, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ProcedureQueryDto {
@@ -19,4 +19,8 @@ export class ProcedureQueryDto {
   @IsInt()
   @Min(1)
   limit?: number = 10;
+
+  @IsOptional()
+  @IsString()
+  searchTerm?: string;
 }
