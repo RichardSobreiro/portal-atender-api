@@ -9,6 +9,7 @@ import { PatientModule } from './patients/patient.module';
 import { PatientRecordModule } from './patients/patient-record.module';
 import { PatientImagesModule } from './patients/patient-images.module';
 import { ProcedureModule } from './procedures/procedure.module';
+import { AnamnesisModelModule } from './anamnesis-models/anamnesis-model.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ProcedureModule } from './procedures/procedure.module';
     PatientRecordModule,
     PatientImagesModule,
     ProcedureModule,
+    AnamnesisModelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
