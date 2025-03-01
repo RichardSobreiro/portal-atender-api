@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, In, IsNull, Repository } from 'typeorm';
 import { AnamnesisModel } from './entities/anamnesis-model.entity';
 import { CreateAnamnesisModelDto } from './dtos/create-anamnesis-model.dto';
 import { UpdateAnamnesisModelDto } from './dtos/update-anamnesis-model.dto';
@@ -29,10 +34,24 @@ export class AnamnesisModelService {
   /**
    * Create a new Anamnesis Model
    */
-  async create(dto: CreateAnamnesisModelDto): Promise<AnamnesisModelDto> {
+  async create(
+    dto: CreateAnamnesisModelDto,
+    companyId: string,
+  ): Promise<AnamnesisModelDto> {
+    const existingModel = await this.anamnesisModelRepository.findOne({
+      where: { name: dto.name, type: dto.type, company: { id: companyId } },
+      relations: ['company'],
+    });
+
+    if (existingModel && existingModel?.company?.id === companyId) {
+      throw new ConflictException(
+        `Já existe um modelo de anamnese com o nome "${dto.name}" e tipo "${dto.type}".`,
+      );
+    }
+
     const anamnesisModel = this.anamnesisModelRepository.create({
       ...dto,
-      company: dto.companyId ? { id: dto.companyId } : null, // ✅ Handle companyId
+      company: { id: companyId },
       groups: dto.groups.map((group) =>
         this.questionGroupRepository.create({
           ...group,
@@ -55,23 +74,35 @@ export class AnamnesisModelService {
   /**
    * Retrieve all Anamnesis Models with optional filters
    */
-  async findAll(query: QueryAnamnesisModelDto): Promise<AnamnesisModelDto[]> {
-    const whereCondition: any = [
-      { company: { id: query.companyId } }, // ✅ Fetch custom models for the company
-      { company: null }, // ✅ Fetch default (global) models
-    ];
+  async findAll(
+    query: QueryAnamnesisModelDto,
+    companyId: string,
+  ): Promise<AnamnesisModelDto[]> {
+    let whereCondition: any[] = [];
 
-    if (query.name) {
-      whereCondition.forEach((condition) => (condition.name = query.name));
-    }
+    // ✅ Ensure both company-specific and global models are searched
+    whereCondition.push(
+      { company: { id: companyId } }, // ✅ Custom models for the company
+      { company: IsNull() }, // ✅ Default models (global)
+    );
 
-    if (query.type) {
-      whereCondition.forEach((condition) => (condition.type = query.type));
+    // ✅ Apply searchTerm correctly to `name` OR `type`
+    if (query.searchTerm) {
+      const searchFilter = ILike(`%${query.searchTerm}%`);
+      whereCondition = whereCondition.flatMap((condition) => [
+        { ...condition, name: searchFilter },
+        { ...condition, type: searchFilter },
+      ]);
     }
 
     const models = await this.anamnesisModelRepository.find({
       where: whereCondition,
-      relations: ['groups', 'groups.questions', 'groups.questions.options'],
+      relations: [
+        'groups',
+        'groups.questions',
+        'groups.questions.options',
+        'company',
+      ],
     });
 
     return models.map(this.mapToDto);
@@ -80,16 +111,17 @@ export class AnamnesisModelService {
   /**
    * Retrieve a single Anamnesis Model by ID
    */
-  async findOne(id: string, companyId?: string): Promise<AnamnesisModelDto> {
+  async findOne(id: string): Promise<AnamnesisModelDto> {
     const whereCondition: any = { id };
-
-    if (companyId) {
-      whereCondition.company = { id: companyId }; // ✅ Ensure company ownership
-    }
 
     const anamnesisModel = await this.anamnesisModelRepository.findOne({
       where: whereCondition,
-      relations: ['groups', 'groups.questions', 'groups.questions.options'],
+      relations: [
+        'groups',
+        'groups.questions',
+        'groups.questions.options',
+        'company',
+      ],
     });
 
     if (!anamnesisModel) {
@@ -105,8 +137,14 @@ export class AnamnesisModelService {
   async update(
     id: string,
     dto: UpdateAnamnesisModelDto,
+    companyId: string,
   ): Promise<AnamnesisModelDto> {
     const anamnesisModel = await this.findOne(id);
+
+    // If the model is a default model (companyId = null), create a new one instead of updating
+    if (!anamnesisModel.companyId) {
+      return this.create(dto as CreateAnamnesisModelDto, companyId);
+    }
 
     if (dto.name) anamnesisModel.name = dto.name;
     if (dto.type) anamnesisModel.type = dto.type;
@@ -124,7 +162,9 @@ export class AnamnesisModelService {
           );
         }
 
-        if (groupDto.name) group.name = groupDto.name;
+        if (groupDto.name) {
+          group.name = groupDto.name;
+        }
 
         if (groupDto.questions) {
           for (const questionDto of groupDto.questions) {
@@ -139,6 +179,7 @@ export class AnamnesisModelService {
               );
             }
 
+            // ✅ Updating question properties
             if (questionDto.type) question.type = questionDto.type;
             if (questionDto.text) question.text = questionDto.text;
             if (questionDto.required !== undefined)
@@ -146,6 +187,7 @@ export class AnamnesisModelService {
             if (questionDto.order !== undefined)
               question.order = questionDto.order;
 
+            // ✅ Handling question options
             if (questionDto.options) {
               for (const optionDto of questionDto.options) {
                 const option = await this.optionRepository.findOne({
@@ -164,29 +206,57 @@ export class AnamnesisModelService {
               }
             }
 
+            // ✅ Save updated question before saving the group
             await this.questionRepository.save(question);
           }
         }
 
-        const updatedModel =
-          await this.anamnesisModelRepository.save(anamnesisModel);
-        return this.mapToDto(updatedModel);
+        // ✅ Ensure updated questions are attached to the group
+        group.questions = await this.questionRepository.find({
+          where: { id: In(groupDto.questions.map((q) => q.id)) },
+          relations: ['options'],
+        });
+
+        // ✅ Save updated group after questions are saved
+        await this.questionGroupRepository.save(group);
       }
     }
 
-    return await this.anamnesisModelRepository.save(anamnesisModel);
+    // ✅ Ensure updated groups are attached to the anamnesis model
+    anamnesisModel.groups = await this.questionGroupRepository.find({
+      where: { id: In(dto.groups.map((g) => g.id)) },
+      relations: ['questions', 'questions.options'],
+    });
+
+    // ✅ Save the final model with updated groups and questions
+    const updatedModel =
+      await this.anamnesisModelRepository.save(anamnesisModel);
+    return this.mapToDto(updatedModel);
   }
 
   /**
    * Delete an Anamnesis Model by ID
    */
-  async remove(id: string): Promise<void> {
+  async remove(id: string, companyId: string): Promise<void> {
     const anamnesisModel = await this.anamnesisModelRepository.findOne({
       where: { id },
+      relations: ['company'],
     });
 
     if (!anamnesisModel) {
       throw new NotFoundException(`Anamnese não encontrada`);
+    }
+
+    if (!anamnesisModel.company) {
+      throw new BadRequestException(
+        `Modelos de anamnese padrão não podem ser deletados`,
+      );
+    }
+
+    if (anamnesisModel.company.id != companyId) {
+      throw new BadRequestException(
+        `Você não tem permissão de deletar modelos de anamnese da empresa ${anamnesisModel.company.name}.`,
+      );
     }
 
     await this.anamnesisModelRepository.remove(anamnesisModel);

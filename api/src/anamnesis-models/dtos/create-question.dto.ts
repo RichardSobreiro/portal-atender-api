@@ -5,31 +5,29 @@ import {
   IsInt,
   Min,
   ValidateNested,
-  IsOptional,
-  ArrayNotEmpty,
+  ValidateIf,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateOptionDto } from './create-option.dto';
 
 export class CreateQuestionDto {
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'O tipo da pergunta deve ser uma string.' })
+  @IsNotEmpty({ message: 'O tipo da pergunta é obrigatório.' })
   type: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'O texto da pergunta deve ser uma string.' })
+  @IsNotEmpty({ message: 'O texto da pergunta é obrigatório.' })
   text: string;
 
-  @IsBoolean()
+  @IsBoolean({ message: 'O campo obrigatório deve ser um valor booleano.' })
   required: boolean;
 
-  @IsInt()
-  @Min(1)
+  @IsInt({ message: 'A ordem deve ser um número inteiro.' })
+  @Min(1, { message: 'A ordem deve ser no mínimo 1.' })
   order: number;
 
-  @ValidateNested({ each: true })
+  @ValidateIf((obj) => obj.options !== undefined) // ✅ Only validate if options is provided
+  @ValidateNested({ each: true, message: 'As opções devem ser válidas.' })
   @Type(() => CreateOptionDto)
-  @IsOptional()
-  @ArrayNotEmpty()
   options?: CreateOptionDto[];
 }

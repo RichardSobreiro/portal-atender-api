@@ -1,13 +1,9 @@
 /** @format */
 
-import { IsOptional, IsInt, Min, IsUUID, IsString } from 'class-validator';
+import { IsOptional, IsInt, Min, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class QueryAnamnesisModelDto {
-  @IsOptional()
-  @IsUUID()
-  companyId?: string;
-
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -22,9 +18,5 @@ export class QueryAnamnesisModelDto {
 
   @IsOptional()
   @IsString()
-  name?: string;
-
-  @IsOptional()
-  @IsString()
-  type?: string;
+  searchTerm?: string;
 }
