@@ -22,7 +22,10 @@ export class PatientService {
     private readonly patientRepository: Repository<Patient>,
   ) {}
 
-  async create(createPatientDto: CreatePatientDto): Promise<PatientDto> {
+  async create(
+    createPatientDto: CreatePatientDto,
+    companyId: string,
+  ): Promise<PatientDto> {
     if (createPatientDto.idCard) {
       const existingRg = await this.patientRepository.findOne({
         where: { idCard: createPatientDto.idCard },
@@ -42,7 +45,10 @@ export class PatientService {
     }
 
     try {
-      const newPatient = this.patientRepository.create(createPatientDto);
+      const newPatient = this.patientRepository.create({
+        ...createPatientDto,
+        companyId,
+      });
       const savedPatient = await this.patientRepository.save(newPatient);
 
       return plainToInstance(PatientDto, savedPatient, {
@@ -56,12 +62,13 @@ export class PatientService {
     }
   }
 
-  async findAll(query: PatientQueryDto) {
+  async findAll(query: PatientQueryDto, companyId: string) {
     const { page = 1, limit = 10, searchTerm, state } = query;
     const skip = (page - 1) * limit;
 
     const queryBuilder: SelectQueryBuilder<Patient> = this.patientRepository
       .createQueryBuilder('patient')
+      .where('patient.companyId = :companyId', { companyId })
       .leftJoinAndSelect('patient.phones', 'phones')
       .leftJoinAndSelect('patient.emails', 'emails')
       .leftJoinAndSelect('patient.addresses', 'addresses');
@@ -101,9 +108,38 @@ export class PatientService {
     };
   }
 
-  async findOne(id: string): Promise<PatientDto> {
+  async searchPatients(name: string, companyId: string) {
+    const queryBuilder: SelectQueryBuilder<Patient> = this.patientRepository
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.phones', 'phones')
+      .where('patient.companyId = :companyId', { companyId });
+
+    if (name) {
+      queryBuilder.andWhere('LOWER(patient.name) LIKE LOWER(:name)', {
+        name: `%${name}%`,
+      });
+    }
+
+    queryBuilder.orderBy('patient.name', 'ASC'); // Sort alphabetically
+
+    const patients = await queryBuilder.getMany();
+
+    return patients.map((patient) => {
+      // Check if the patient has any phones
+      const favoritePhone =
+        patient.phones?.find((phone) => phone.favorite) || patient.phones?.[0];
+
+      return {
+        id: patient.id,
+        name: patient.name,
+        phone: favoritePhone ? favoritePhone.number : '', // Return empty string if no phone
+      };
+    });
+  }
+
+  async findOne(id: string, companyId: string): Promise<PatientDto> {
     const patient = await this.patientRepository.findOne({
-      where: { id },
+      where: { id, company: { id: companyId } },
       relations: ['phones', 'emails', 'addresses', 'responsibles'], // Fixed from relationships → relations
     });
 
@@ -121,9 +157,10 @@ export class PatientService {
   async update(
     id: string,
     updatePatientDto: UpdatePatientDto,
+    companyId: string,
   ): Promise<PatientDto> {
     const patient = await this.patientRepository.findOne({
-      where: { id },
+      where: { id, company: { id: companyId } },
       relations: ['phones', 'emails', 'addresses', 'responsibles'], // Fixed relationships → relations
     });
 
@@ -164,8 +201,11 @@ export class PatientService {
     });
   }
 
-  async remove(id: string): Promise<void> {
-    const result = await this.patientRepository.delete(id);
+  async remove(id: string, companyId: string): Promise<void> {
+    const result = await this.patientRepository.delete({
+      id,
+      company: { id: companyId },
+    });
     if (result.affected === 0) {
       throw new NotFoundException(`Paciente com ID ${id} não encontrado.`);
     }

@@ -8,6 +8,7 @@ import {
   Index,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Phone } from './phone.entity';
 import { Email } from './email.entity';
@@ -15,6 +16,7 @@ import { Address } from './address.entity';
 import { Responsible } from './responsible.entity';
 import { PatientRecord } from './patient-record.entity';
 import { PatientImage } from './patient-image.entity';
+import { Company } from 'src/auth/entities/company.entity';
 
 @Entity('patients')
 export class Patient {
@@ -97,4 +99,13 @@ export class Patient {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'uuid', nullable: false })
+  @Index()
+  companyId: string;
+
+  @ManyToOne(() => Company, {
+    onDelete: 'CASCADE',
+  })
+  company: Company;
 }

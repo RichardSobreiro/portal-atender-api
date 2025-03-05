@@ -26,9 +26,10 @@ export class PatientImageService {
     files: Express.Multer.File[],
     imagesMetadata: { id: string | null; originalName: string }[],
     patientId: string,
+    companyId: string,
   ): Promise<PatientImageDto[]> {
     // Validate if the patient exists
-    const patient = await this.patientService.findOne(patientId);
+    const patient = await this.patientService.findOne(patientId, companyId);
     if (!patient) {
       throw new NotFoundException('Paciente não encontrado.');
     }

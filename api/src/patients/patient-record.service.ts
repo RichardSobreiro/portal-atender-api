@@ -17,9 +17,12 @@ export class PatientRecordService {
     private readonly patientService: PatientService, // Inject PatientService to validate patients
   ) {}
 
-  async create(dto: CreatePatientRecordDto): Promise<PatientRecordDto> {
+  async create(
+    dto: CreatePatientRecordDto,
+    companyId: string,
+  ): Promise<PatientRecordDto> {
     // Validate if patient exists
-    const patient = await this.patientService.findOne(dto.patientId);
+    const patient = await this.patientService.findOne(dto.patientId, companyId);
     if (!patient) {
       throw new NotFoundException('Paciente não encontrado.');
     }

@@ -97,6 +97,7 @@ export class AnamnesisModelService {
 
     const models = await this.anamnesisModelRepository.find({
       where: whereCondition,
+      order: { name: 'ASC' },
       relations: [
         'groups',
         'groups.questions',
@@ -143,7 +144,29 @@ export class AnamnesisModelService {
 
     // If the model is a default model (companyId = null), create a new one instead of updating
     if (!anamnesisModel.companyId) {
-      return this.create(dto as CreateAnamnesisModelDto, companyId);
+      // ✅ Manually map `UpdateAnamnesisModelDto` to `CreateAnamnesisModelDto`
+      const newDto: CreateAnamnesisModelDto = {
+        name: dto.name,
+        type: dto.type,
+        companyId, // ✅ Assign the user's companyId
+        groups:
+          dto.groups?.map((group) => ({
+            name: group.name,
+            questions:
+              group.questions?.map((question) => ({
+                type: question.type,
+                text: question.text,
+                required: question.required,
+                order: question.order,
+                options:
+                  question.options?.map((option) => ({
+                    text: option.text,
+                  })) || [],
+              })) || [],
+          })) || [],
+      };
+
+      return this.create(newDto, companyId);
     }
 
     if (dto.name) anamnesisModel.name = dto.name;

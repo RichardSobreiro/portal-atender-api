@@ -16,6 +16,7 @@ import * as multer from 'multer';
 import { PatientImageService } from './patient-image.service';
 import { PatientImageDto } from './dtos/patient-image.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AuthUser } from 'src/auth/auth-user.decorator';
 
 @Controller('patients/:patientId/images')
 @UseGuards(JwtAuthGuard)
@@ -37,6 +38,7 @@ export class PatientImagesController {
     @UploadedFiles() files: Express.Multer.File[],
     @Body()
     body: { imagesMetadata: string },
+    @AuthUser() user,
   ): Promise<PatientImageDto[]> {
     if (!files || files.length === 0) {
       throw new BadRequestException('Nenhuma imagem foi enviada.');
@@ -57,6 +59,7 @@ export class PatientImagesController {
       files,
       imagesMetadata,
       patientId,
+      user.companyId,
     );
   }
 
