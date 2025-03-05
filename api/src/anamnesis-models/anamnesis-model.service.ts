@@ -109,6 +109,23 @@ export class AnamnesisModelService {
     return models.map(this.mapToDto);
   }
 
+  async findAllBasicInfo(
+    companyId: string,
+  ): Promise<{ id: string; name: string; type: string }[]> {
+    const whereCondition: any[] = [
+      { company: { id: companyId } },
+      { company: IsNull() },
+    ];
+
+    const models = await this.anamnesisModelRepository.find({
+      where: whereCondition,
+      select: ['id', 'name', 'type'],
+      order: { name: 'ASC' },
+    });
+
+    return models;
+  }
+
   /**
    * Retrieve a single Anamnesis Model by ID
    */

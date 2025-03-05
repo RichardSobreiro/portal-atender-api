@@ -44,6 +44,11 @@ export class AnamnesisModelController {
     return this.anamnesisModelService.findAll(query, user.companyId);
   }
 
+  @Get('search')
+  async searchPatients(@AuthUser() user) {
+    return await this.anamnesisModelService.findAllBasicInfo(user.companyId);
+  }
+
   /**
    * Retrieve a single Anamnesis Model by ID
    */
