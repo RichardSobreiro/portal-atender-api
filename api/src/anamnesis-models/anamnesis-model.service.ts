@@ -111,7 +111,9 @@ export class AnamnesisModelService {
 
   async findAllBasicInfo(
     companyId: string,
-  ): Promise<{ id: string; name: string; type: string }[]> {
+  ): Promise<
+    { id: string; name: string; type: string; companyId: string | null }[]
+  > {
     const whereCondition: any[] = [
       { company: { id: companyId } },
       { company: IsNull() },
@@ -120,10 +122,18 @@ export class AnamnesisModelService {
     const models = await this.anamnesisModelRepository.find({
       where: whereCondition,
       select: ['id', 'name', 'type'],
+      relations: ['company'],
       order: { name: 'ASC' },
     });
 
-    return models;
+    const modelsDto = models.map((model) => ({
+      id: model.id,
+      name: model.name,
+      type: model.type,
+      companyId: model.company ? model.company.id : null, // ✅ Extracting `companyId` safely
+    }));
+
+    return modelsDto;
   }
 
   /**
@@ -161,11 +171,10 @@ export class AnamnesisModelService {
 
     // If the model is a default model (companyId = null), create a new one instead of updating
     if (!anamnesisModel.companyId) {
-      // ✅ Manually map `UpdateAnamnesisModelDto` to `CreateAnamnesisModelDto`
       const newDto: CreateAnamnesisModelDto = {
         name: dto.name,
         type: dto.type,
-        companyId, // ✅ Assign the user's companyId
+        companyId,
         groups:
           dto.groups?.map((group) => ({
             name: group.name,
@@ -190,36 +199,55 @@ export class AnamnesisModelService {
     if (dto.type) anamnesisModel.type = dto.type;
 
     if (dto.groups) {
+      const existingGroups = await this.questionGroupRepository.find({
+        where: { anamnesisModel: { id: anamnesisModel.id } },
+        relations: ['questions', 'questions.options'],
+      });
+
+      let updatedGroups: QuestionGroup[] = [];
+
       for (const groupDto of dto.groups) {
-        const group = await this.questionGroupRepository.findOne({
+        let group = await this.questionGroupRepository.findOne({
           where: { id: groupDto.id },
           relations: ['questions'],
         });
 
         if (!group) {
-          throw new NotFoundException(
-            `Question Group with ID ${groupDto.id} not found`,
-          );
+          group = this.questionGroupRepository.create({
+            name: groupDto.name,
+            anamnesisModel: anamnesisModel,
+          });
+
+          group = await this.questionGroupRepository.save(group);
         }
 
         if (groupDto.name) {
           group.name = groupDto.name;
         }
 
+        let updatedQuestions: Question[] = [];
+        const existingQuestions = await this.questionRepository.find({
+          where: { group: { id: group.id } },
+        });
         if (groupDto.questions) {
           for (const questionDto of groupDto.questions) {
-            const question = await this.questionRepository.findOne({
+            let question = await this.questionRepository.findOne({
               where: { id: questionDto.id },
               relations: ['options'],
             });
 
             if (!question) {
-              throw new NotFoundException(
-                `Question with ID ${questionDto.id} not found`,
-              );
+              question = this.questionRepository.create({
+                type: questionDto.type,
+                text: questionDto.text,
+                required: questionDto.required,
+                order: questionDto.order,
+                group: group,
+              });
+
+              question = await this.questionRepository.save(question);
             }
 
-            // ✅ Updating question properties
             if (questionDto.type) question.type = questionDto.type;
             if (questionDto.text) question.text = questionDto.text;
             if (questionDto.required !== undefined)
@@ -227,56 +255,70 @@ export class AnamnesisModelService {
             if (questionDto.order !== undefined)
               question.order = questionDto.order;
 
-            // ✅ Handling question options
+            let updatedOptions: Option[] = [];
             if (questionDto.options) {
               for (const optionDto of questionDto.options) {
-                const option = await this.optionRepository.findOne({
+                let option = await this.optionRepository.findOne({
                   where: { id: optionDto.id },
                 });
 
                 if (!option) {
-                  throw new NotFoundException(
-                    `Option with ID ${optionDto.id} not found`,
-                  );
+                  option = this.optionRepository.create({
+                    text: optionDto.text,
+                    question: question,
+                  });
+
+                  option = await this.optionRepository.save(option);
                 }
 
                 if (optionDto.text) option.text = optionDto.text;
-
-                await this.optionRepository.save(option);
+                option = await this.optionRepository.save(option);
+                updatedOptions.push(option);
               }
             }
 
-            // ✅ Save updated question before saving the group
-            await this.questionRepository.save(question);
+            question.options = updatedOptions;
+            question = await this.questionRepository.save(question);
+            updatedQuestions.push(question);
           }
         }
 
-        // ✅ Ensure updated questions are attached to the group
-        group.questions = await this.questionRepository.find({
-          where: { id: In(groupDto.questions.map((q) => q.id)) },
-          relations: ['options'],
-        });
+        const deletedQuestions = existingQuestions.filter(
+          (existingQuestion) =>
+            !updatedQuestions.some((q) => q.id === existingQuestion.id),
+        );
 
-        // ✅ Save updated group after questions are saved
-        await this.questionGroupRepository.save(group);
+        if (deletedQuestions.length > 0) {
+          await this.questionRepository.remove(deletedQuestions);
+        }
+
+        group.questions = updatedQuestions;
+        group = await this.questionGroupRepository.save(group);
+        updatedGroups.push(group);
       }
+
+      const deletedGroups = existingGroups.filter(
+        (existingGroup) =>
+          !updatedGroups.some((g) => g.id === existingGroup.id),
+      );
+
+      if (deletedGroups.length > 0) {
+        await this.questionGroupRepository.remove(deletedGroups);
+      }
+
+      anamnesisModel.groups = updatedGroups;
     }
 
-    // ✅ Ensure updated groups are attached to the anamnesis model
-    anamnesisModel.groups = await this.questionGroupRepository.find({
-      where: { id: In(dto.groups.map((g) => g.id)) },
-      relations: ['questions', 'questions.options'],
-    });
+    // anamnesisModel.groups = await this.questionGroupRepository.find({
+    //   where: { anamnesisModel: { id: anamnesisModel.id } },
+    //   relations: ['questions', 'questions.options'],
+    // });
 
-    // ✅ Save the final model with updated groups and questions
     const updatedModel =
       await this.anamnesisModelRepository.save(anamnesisModel);
     return this.mapToDto(updatedModel);
   }
 
-  /**
-   * Delete an Anamnesis Model by ID
-   */
   async remove(id: string, companyId: string): Promise<void> {
     const anamnesisModel = await this.anamnesisModelRepository.findOne({
       where: { id },
