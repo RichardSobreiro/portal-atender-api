@@ -10,6 +10,7 @@ import { PatientRecordModule } from './patients/patient-record.module';
 import { PatientImagesModule } from './patients/patient-images.module';
 import { ProcedureModule } from './procedures/procedure.module';
 import { AnamnesisModelModule } from './anamnesis-models/anamnesis-model.module';
+import { AnamnesisModule } from './anamnesis/anamnesis.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AnamnesisModelModule } from './anamnesis-models/anamnesis-model.module'
     PatientImagesModule,
     ProcedureModule,
     AnamnesisModelModule,
+    AnamnesisModule,
   ],
   controllers: [AppController],
   providers: [AppService],

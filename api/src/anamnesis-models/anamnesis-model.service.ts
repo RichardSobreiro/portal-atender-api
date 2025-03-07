@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, In, IsNull, Repository } from 'typeorm';
+import { ILike, IsNull, Repository } from 'typeorm';
 import { AnamnesisModel } from './entities/anamnesis-model.entity';
 import { CreateAnamnesisModelDto } from './dtos/create-anamnesis-model.dto';
 import { UpdateAnamnesisModelDto } from './dtos/update-anamnesis-model.dto';
@@ -204,8 +204,7 @@ export class AnamnesisModelService {
         relations: ['questions', 'questions.options'],
       });
 
-      let updatedGroups: QuestionGroup[] = [];
-
+      const updatedGroups: QuestionGroup[] = [];
       for (const groupDto of dto.groups) {
         let group = await this.questionGroupRepository.findOne({
           where: { id: groupDto.id },
@@ -225,7 +224,7 @@ export class AnamnesisModelService {
           group.name = groupDto.name;
         }
 
-        let updatedQuestions: Question[] = [];
+        const updatedQuestions: Question[] = [];
         const existingQuestions = await this.questionRepository.find({
           where: { group: { id: group.id } },
         });
@@ -255,7 +254,7 @@ export class AnamnesisModelService {
             if (questionDto.order !== undefined)
               question.order = questionDto.order;
 
-            let updatedOptions: Option[] = [];
+            const updatedOptions: Option[] = [];
             if (questionDto.options) {
               for (const optionDto of questionDto.options) {
                 let option = await this.optionRepository.findOne({
@@ -319,6 +318,9 @@ export class AnamnesisModelService {
     return this.mapToDto(updatedModel);
   }
 
+  /**
+   * Delete an Anamnesis Model by ID
+   */
   async remove(id: string, companyId: string): Promise<void> {
     const anamnesisModel = await this.anamnesisModelRepository.findOne({
       where: { id },
